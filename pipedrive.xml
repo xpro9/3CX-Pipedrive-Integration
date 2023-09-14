@@ -167,24 +167,11 @@
           <Value Key="done" If="[CallType]!=Missed" Passes="1" Type="Integer">1</Value>
           <Value Key="done" If="[CallType]==Missed" Passes="1" Type="Integer">0</Value>
           <Value Key="user_id" Passes="0" Type="Integer">[CRMUserID]</Value>
-          <Value Key="deal_id" Passes="0" Type="String">[DealID]</Value>
           <Value Key="lead_id" Passes="0" Type="String">[LeadID]</Value>
         </PostValues>
       </Request>
       <Variables />
       <Outputs AllowEmpty="false" />
-    </Scenario>
-    <Scenario Id="ReportCall-GetDeal" Type="REST">
-      <Request SkipIf="" Url="https://api.pipedrive.com/v1/persons/[PersonId]/deals?start=0&amp;status=all_not_deleted&amp;sort=id%20DESC&amp;api_token=[APIkey]" MessagePasses="0" RequestEncoding="UrlEncoded" RequestType="Get" ResponseType="Json" />
-      <Rules>
-        <Rule Type="Any">data.id</Rule>
-      </Rules>
-      <Variables>
-        <Variable Name="DealID" Path="data.id">
-          <Filter />
-        </Variable>
-      </Variables>
-      <Outputs Next="ReportCall-AddActivity" AllowEmpty="true" />
     </Scenario>
     <Scenario Id="ReportCall-GetLead" Type="REST">
       <Request Url="https://api.pipedrive.com/v1/leads?owner_id=[CRMUserID]&amp;person_id=[PersonId]&amp;api_token=[APIkey]" MessagePasses="0" RequestEncoding="UrlEncoded" RequestType="Get" ResponseType="Json" />
@@ -196,7 +183,7 @@
           <Filter />
         </Variable>
       </Variables>
-      <Outputs Next="ReportCall-GetDeal" AllowEmpty="true" />
+      <Outputs Next="ReportCall-AddActivity" AllowEmpty="true" />
     </Scenario>
     <Scenario Id="ReportCall-GetContact" Type="REST">
       <Request SkipIf="" Url="https://api.pipedrive.com/v1/searchResults?term=[Number]&amp;item_type=person&amp;start=0&amp;api_token=[APIkey]" MessagePasses="0" RequestEncoding="UrlEncoded" RequestType="Get" ResponseType="Json" />
