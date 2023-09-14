@@ -25,14 +25,12 @@
           <Filter />
         </Variable>
       </Variables>
-      <Outputs Next="GetContactData" AllowEmpty="false">
-        <Output Type="ContactID" Passes="0" Value="[Id]" />
-      </Outputs>
+      <Outputs Next="GetContactData" AllowEmpty="false" />      
     </Scenario>
     <Scenario Id="GetContactData" Type="REST">
-      <Request Url="https://api.pipedrive.com/v1/persons/[Id]?api_token=[APIkey]" MessagePasses="0" RequestEncoding="UrlEncoded" RequestType="Get" ResponseType="Json" />
+      <Request Url="https://api.pipedrive.com/v1/persons/[PersonId]?api_token=[APIkey]" MessagePasses="0" RequestEncoding="UrlEncoded" RequestType="Get" ResponseType="Json" />
       <Rules>
-        <Rule Type="Equals" Ethalon="[Id]">data.id</Rule>
+        <Rule Type="Equals" Ethalon="[PersonId]">data.id</Rule>
       </Rules>
       <Variables>
         <Variable Name="EntityId" Path="data.id">
@@ -87,7 +85,7 @@
         <Output Type="Email" Passes="0" Value="[Email]" />
         <Output Type="EntityId" Passes="0" Value="[EntityId]" />
         <Output Type="EntityType" Passes="0" Value="Contacts" />
-        <Output Type="ContactUrl" Passes="0" Value="https://[Domain].pipedrive.com/person/[Id]" />
+        <Output Type="ContactUrl" Passes="0" Value="https://[Domain].pipedrive.com/person/[PersonId]" />
         <Output Type="PhotoUrl" Passes="0" Value="[PhotoURL]" />
       </Outputs>
     </Scenario>
@@ -102,15 +100,15 @@
         <Rule Type="Any">data.id</Rule>
       </Rules>
       <Variables>
-        <Variable Name="Id" Path="data.id">
+        <Variable Name="PersonId" Path="data.id">
           <Filter />
         </Variable>
       </Variables>
       <Outputs AllowEmpty="false">
-        <Output Type="ContactUrl" Passes="0" Value="https://[Domain].pipedrive.com/person/[Id]" />
+        <Output Type="ContactUrl" Passes="0" Value="https://[Domain].pipedrive.com/person/[PersonId]" />
         <Output Type="FirstName" Passes="0" Value="[CreateContactName]" />
         <Output Type="PhoneBusiness" Passes="0" Value="[Number]" />
-        <Output Type="EntityId" Passes="0" Value="[Id]" />
+        <Output Type="EntityId" Passes="0" Value="[PersonId]" />
       </Outputs>
     </Scenario>
     <Scenario Id="ReportCall" Type="REST">
@@ -119,9 +117,6 @@
         <Rule Type="Any">data.items.item</Rule>
       </Rules>
       <Variables>
-        <Variable Name="CRMUserID" Path="data.items.item.id">
-          <Filter />
-        </Variable>
         <Variable Name="CRMUserEmail" Path="data.items.item.primary_email">
           <Filter />
         </Variable>
@@ -153,7 +148,7 @@
           <Filter />
         </Variable>
       </Variables>
-      <Outputs Next="ReportCall-GetLead" AllowEmpty="false" />
+      <Outputs Next="ReportCall-AddActivity" AllowEmpty="false" />
     </Scenario>
     <Scenario Id="ReportCall-AddActivity" Type="REST">
       <Request Url="https://api.pipedrive.com/v1/activities?api_token=[APIkey]" MessagePasses="0" Message="" RequestEncoding="Json" RequestType="Post" ResponseType="Json">
@@ -167,31 +162,18 @@
           <Value Key="done" If="[CallType]!=Missed" Passes="1" Type="Integer">1</Value>
           <Value Key="done" If="[CallType]==Missed" Passes="1" Type="Integer">0</Value>
           <Value Key="user_id" Passes="0" Type="Integer">[CRMUserID]</Value>
-          <Value Key="lead_id" Passes="0" Type="String">[LeadID]</Value>
         </PostValues>
       </Request>
       <Variables />
       <Outputs AllowEmpty="false" />
-    </Scenario>
-    <Scenario Id="ReportCall-GetLead" Type="REST">
-      <Request Url="https://api.pipedrive.com/v1/leads?owner_id=[CRMUserID]&amp;person_id=[PersonId]&amp;api_token=[APIkey]" MessagePasses="0" RequestEncoding="UrlEncoded" RequestType="Get" ResponseType="Json" />
-      <Rules>
-        <Rule Type="Any">data.id</Rule>
-      </Rules>
-      <Variables>
-        <Variable Name="LeadID" Path="data.id">
-          <Filter />
-        </Variable>
-      </Variables>
-      <Outputs Next="ReportCall-AddActivity" AllowEmpty="true" />
-    </Scenario>
+    </Scenario>  
     <Scenario Id="ReportCall-GetContact" Type="REST">
-      <Request SkipIf="" Url="https://api.pipedrive.com/v1/searchResults?term=[Number]&amp;item_type=person&amp;start=0&amp;api_token=[APIkey]" MessagePasses="0" RequestEncoding="UrlEncoded" RequestType="Get" ResponseType="Json" />
+      <Request SkipIf="" Url="https://api.pipedrive.com/v1/itemSearch?term=[Number]&amp;item_types=person&amp;fields=phone&amp;start=0&amp;api_token=[APIkey]" MessagePasses="0" RequestEncoding="UrlEncoded" RequestType="Get" ResponseType="Json" />
       <Rules>
         <Rule Type="Number">data.details.phone</Rule>
       </Rules>
       <Variables>
-        <Variable Name="EntityId" Path="data.id">
+        <Variable Name="EntityId" Path="data.items.item.id">
           <Filter />
         </Variable>
       </Variables>
